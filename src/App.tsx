@@ -32,7 +32,7 @@ const StarRating = ({ rating }: { rating: number }) => {
   );
 };
 
-const TestimonialsSection = () => {
+const TestimonialsSection = ({ isMobile }: { isMobile: boolean }) => {
   const [isPaused1, setIsPaused1] = useState(false);
   const [isPaused2, setIsPaused2] = useState(false);
   
@@ -41,18 +41,18 @@ const TestimonialsSection = () => {
       <div className="max-w-7xl mx-auto px-8 mb-8 text-center">
         <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">Depoimentos</h2>
         <div className="text-3xl font-bold text-[#f59e0b] mb-1">
-          <AnimatedCounter end={5000} />+
+          <AnimatedCounter end={5000} isMobile={isMobile} />+
         </div>
         <p className="text-slate-400 text-sm">instalações realizadas</p>
       </div>
       
       <div className="relative [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
         <div 
-          className={`flex gap-6 mb-6 animate-marquee ${isPaused1 ? 'paused' : ''}`}
+          className={`flex gap-6 mb-6 ${isMobile ? 'flex-wrap justify-center' : 'animate-marquee'} ${isPaused1 ? 'paused' : ''}`}
           onMouseEnter={() => setIsPaused1(true)}
           onMouseLeave={() => setIsPaused1(false)}
         >
-          {[...testimonials, ...testimonials].map((t, i) => (
+          {(isMobile ? testimonials : [...testimonials, ...testimonials]).map((t, i) => (
             <div key={i} className="bg-slate-800 p-6 rounded-2xl w-72 flex-shrink-0">
               <StarRating rating={t.rating} />
               <p className="my-4 text-slate-300 text-sm">"{t.text}"</p>
@@ -66,33 +66,39 @@ const TestimonialsSection = () => {
           ))}
         </div>
 
-        <div 
-          className={`flex gap-6 animate-marquee ${isPaused2 ? 'paused' : ''}`}
-          style={{ animationDirection: 'reverse' }}
-          onMouseEnter={() => setIsPaused2(true)}
-          onMouseLeave={() => setIsPaused2(false)}
-        >
-          {[...testimonials, ...testimonials].reverse().map((t, i) => (
-            <div key={i} className="bg-slate-800 p-6 rounded-2xl w-72 flex-shrink-0">
-              <StarRating rating={t.rating} />
-              <p className="my-4 text-slate-300 text-sm">"{t.text}"</p>
-              <div className="flex items-center gap-3">
-                <div>
-                  <p className="font-bold text-sm">{t.name}</p>
-                  <p className="text-xs text-slate-400">{t.city}</p>
+        {!isMobile && (
+          <div 
+            className={`flex gap-6 animate-marquee ${isPaused2 ? 'paused' : ''}`}
+            style={{ animationDirection: 'reverse' }}
+            onMouseEnter={() => setIsPaused2(true)}
+            onMouseLeave={() => setIsPaused2(false)}
+          >
+            {[...testimonials, ...testimonials].reverse().map((t, i) => (
+              <div key={i} className="bg-slate-800 p-6 rounded-2xl w-72 flex-shrink-0">
+                <StarRating rating={t.rating} />
+                <p className="my-4 text-slate-300 text-sm">"{t.text}"</p>
+                <div className="flex items-center gap-3">
+                  <div>
+                    <p className="font-bold text-sm">{t.name}</p>
+                    <p className="text-xs text-slate-400">{t.city}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
 };
 
-const AnimatedCounter = ({ end }: { end: number }) => {
-  const [count, setCount] = useState(0);
+const AnimatedCounter = ({ end, isMobile }: { end: number; isMobile?: boolean }) => {
+  const [count, setCount] = useState(isMobile ? end : 0);
   useEffect(() => {
+    if (isMobile) {
+      setCount(end);
+      return;
+    }
     let start = 0;
     const duration = 2000;
     const stepTime = Math.abs(Math.floor(duration / end));
@@ -106,12 +112,23 @@ const AnimatedCounter = ({ end }: { end: number }) => {
       }
     }, stepTime);
     return () => clearInterval(timer);
-  }, [end]);
+  }, [end, isMobile]);
   return <span>{count.toLocaleString()}</span>;
 };
 
 
 export default function App() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const servicesRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -127,10 +144,11 @@ export default function App() {
   const planosCardsRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
-    if (!servicesRef.current || !cardsRef.current || !contentRef.current || !titleRef.current) return;
+    const mm = gsap.matchMedia();
 
-    const ctx = gsap.context(() => {
-      if (window.innerWidth < 768) return;
+    mm.add("(min-width: 1024px)", () => {
+      if (!servicesRef.current || !cardsRef.current || !contentRef.current || !titleRef.current) return;
+
       const cards = cardsRef.current!.children;
       
       const tl = gsap.timeline({
@@ -187,15 +205,17 @@ export default function App() {
 
       // Add a dummy tween at the end to hold the final state before unpinning
       tl.to({}, { duration: 1 });
-    }, servicesRef); // Scope to servicesRef
+    });
 
-    return () => ctx.revert(); // Cleanup!
+    return () => mm.revert();
   }, []);
 
   useLayoutEffect(() => {
-    if (!diferencialRef.current || !diferencialTitleRef.current || !diferencialImgRef.current) return;
+    const mm = gsap.matchMedia();
 
-    const ctx = gsap.context(() => {
+    mm.add("(min-width: 1024px)", () => {
+      if (!diferencialRef.current || !diferencialTitleRef.current || !diferencialImgRef.current) return;
+
       const tl = gsap.timeline({
         scrollTrigger: {
           id: "diferencial-st",
@@ -223,26 +243,29 @@ export default function App() {
       // Animate features
       if (featuresRef.current) {
         const features = Array.from(featuresRef.current.children);
-        features.forEach((feature) => {
-          tl.to(feature as any,
-            { opacity: 1, scale: 1, duration: 0.5 },
-            "-=0.2" // Staggered appearance
+        features.forEach((feature, index) => {
+          const isLeft = index % 2 === 0;
+          tl.fromTo(feature as any,
+            { opacity: 0, scale: 0.8, x: isLeft ? -50 : 50 },
+            { opacity: 1, scale: 1, x: 0, duration: 1 },
+            "-=0.5" // Overlap slightly
           );
         });
       }
 
       // Hold the final state for a bit while pinned
       tl.to({}, { duration: 2 });
-      
-    }, diferencialRef);
+    });
 
-    return () => ctx.revert();
+    return () => mm.revert();
   }, []);
 
   useLayoutEffect(() => {
-    if (!planosRef.current || !planosTitleRef.current || !planosCardsRef.current) return;
+    const mm = gsap.matchMedia();
 
-    const ctx = gsap.context(() => {
+    mm.add("(min-width: 1024px)", () => {
+      if (!planosRef.current || !planosTitleRef.current || !planosCardsRef.current) return;
+
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: planosRef.current,
@@ -259,9 +282,9 @@ export default function App() {
         { opacity: 1, y: 0, duration: 0.8, stagger: 0.2, ease: "power2.out" },
         "-=0.4"
       );
-    }, planosRef);
+    });
 
-    return () => ctx.revert();
+    return () => mm.revert();
   }, []);
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
@@ -333,7 +356,7 @@ export default function App() {
         </nav>
 
         <div className="flex justify-end">
-          <button onClick={(e) => handleNavClick(e, 'contato')} className="bg-[#fcd34d] hover:bg-[#f59e0b] text-[#1a1a1a] px-6 md:px-8 py-3 rounded-full text-sm font-bold transition-all shadow-md whitespace-nowrap cursor-pointer">
+          <button onClick={(e) => handleNavClick(e, 'contato')} className="bg-[#fcd34d] hover:bg-[#f59e0b] text-[#1a1a1a] px-8 py-3 rounded-full text-sm font-bold transition-all shadow-md whitespace-nowrap cursor-pointer">
             Começar Agora
           </button>
         </div>
@@ -350,8 +373,8 @@ export default function App() {
 
           {/* Top Label */}
           <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={isMobile ? false : { opacity: 0, y: 20 }}
+            animate={isMobile ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
             className="text-[10px] md:text-xs font-bold tracking-[0.3em] uppercase mb-4 text-gray-500 text-center"
           >
             Proteja seu espaço com tecnologia avançada
@@ -359,24 +382,24 @@ export default function App() {
 
           {/* Large Title & Camera Sandwich */}
           <motion.h1 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={isMobile ? false : { opacity: 0, scale: 0.95 }}
+            animate={isMobile ? { opacity: 1, scale: 1 } : { opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="text-[17vw] md:text-[14rem] font-serif font-bold leading-none text-[#0f172a] uppercase tracking-tighter select-none text-center relative"
+            className="text-[17vw] md:text-[14.5rem] font-serif font-bold leading-none text-[#0f172a] uppercase tracking-tighter select-none text-center relative"
           >
             <span className="relative z-20">Cam</span>
             
             {/* Main Camera Image (Inside h1 to share stacking context) */}
             <motion.div 
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={isMobile ? false : { opacity: 0, y: 40 }}
+              animate={isMobile ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.8 }}
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[60px] md:translate-y-[120px] w-0 h-0 flex items-center justify-center z-10 pointer-events-none"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[95px] md:translate-y-[114px] w-0 h-0 flex items-center justify-center z-10 pointer-events-none"
             >
               <img 
                 src="/imagens/camera sem fundo.png" 
                 alt="ClariView Advanced Camera" 
-                className="max-w-none w-[54vw] md:w-[360px] h-auto drop-shadow-2xl"
+                className="max-w-none w-[85vw] md:w-[600px] h-auto drop-shadow-2xl"
                 referrerPolicy="no-referrer"
               />
             </motion.div>
@@ -386,10 +409,10 @@ export default function App() {
 
           {/* CTA Buttons */}
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={isMobile ? false : { opacity: 0, y: 20 }}
+            animate={isMobile ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
-            className="flex flex-col sm:flex-row gap-4 mt-32 md:mt-56 relative z-30"
+            className="flex flex-col sm:flex-row gap-4 mt-[148px] md:mt-[244px] relative z-30"
           >
             <button className="py-4 px-[40px] rounded-full bg-[#fcd34d] border-none text-center cursor-pointer transition-all duration-400 hover:shadow-[7px_5px_56px_-14px_#f59e0b] active:scale-[0.97] active:shadow-[7px_5px_56px_-10px_#f59e0b] text-[#1a1a1a] font-bold uppercase tracking-wider text-xs">
               <strong>Solicitar Orçamento</strong>
@@ -402,8 +425,8 @@ export default function App() {
 
         {/* Bottom Left Element */}
         <motion.div 
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={isMobile ? false : { opacity: 0, x: -50 }}
+          animate={isMobile ? { opacity: 1, x: 0 } : { opacity: 1, x: 0 }}
           transition={{ delay: 0.5 }}
           className="absolute bottom-12 left-8 hidden lg:block"
         >
@@ -417,8 +440,8 @@ export default function App() {
 
         {/* Right Side Content */}
         <motion.div 
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={isMobile ? false : { opacity: 0, x: 50 }}
+          animate={isMobile ? { opacity: 1, x: 0 } : { opacity: 1, x: 0 }}
           transition={{ delay: 0.6 }}
           className="absolute right-8 bottom-24 max-w-xs text-right hidden md:block"
         >
@@ -444,16 +467,16 @@ export default function App() {
           {/* Section Header */}
           <div className="text-center mb-24">
             <motion.h2 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={isMobile ? false : { opacity: 0, y: 20 }}
+              whileInView={isMobile ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
               viewport={{ once: true }}
               className="text-4xl md:text-5xl font-serif font-bold text-[#0f172a] mb-6 uppercase tracking-tight"
             >
               Soluções Inteligentes para sua Segurança
             </motion.h2>
             <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={isMobile ? false : { opacity: 0, y: 20 }}
+              whileInView={isMobile ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
               className="text-gray-500 max-w-2xl mx-auto font-medium uppercase tracking-[0.2em] text-xs"
@@ -466,8 +489,8 @@ export default function App() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-4">
             {/* Card 1 */}
             <motion.div 
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={isMobile ? false : { opacity: 0, y: 50 }}
+              whileInView={isMobile ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
               viewport={{ once: true }}
               className="solution-card-parent mx-auto lg:mt-0"
             >
@@ -490,8 +513,8 @@ export default function App() {
 
             {/* Card 2 - Staggered Down */}
             <motion.div 
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={isMobile ? false : { opacity: 0, y: 50 }}
+              whileInView={isMobile ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
               className="solution-card-parent mx-auto lg:mt-24"
@@ -515,8 +538,8 @@ export default function App() {
 
             {/* Card 3 */}
             <motion.div 
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={isMobile ? false : { opacity: 0, y: 50 }}
+              whileInView={isMobile ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
               className="solution-card-parent mx-auto lg:mt-0"
@@ -540,8 +563,8 @@ export default function App() {
 
             {/* Card 4 - Staggered Down */}
             <motion.div 
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={isMobile ? false : { opacity: 0, y: 50 }}
+              whileInView={isMobile ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.3 }}
               className="solution-card-parent mx-auto lg:mt-24"
@@ -575,9 +598,9 @@ export default function App() {
       <section 
         ref={servicesRef}
         id="servicos" 
-        className="min-h-screen h-auto w-full bg-slate-50 py-12 px-8 flex flex-col items-center justify-start overflow-hidden"
+        className={`${isMobile ? 'h-auto py-24' : 'h-screen'} w-full bg-slate-50 px-8 flex flex-col items-center justify-start overflow-hidden`}
       >
-        <div ref={contentRef} className="max-w-7xl mx-auto w-full pt-4">
+        <div ref={contentRef} className={`max-w-7xl mx-auto w-full ${isMobile ? 'pt-0' : 'pt-4'}`}>
           <div ref={titleRef} className="text-center mb-12">
             <h2 className="text-orange-500 font-bold tracking-widest uppercase text-sm mb-4">Tecnologia de Ponta</h2>
             <h3 className="text-4xl md:text-6xl font-serif text-[#0f172a] font-bold leading-tight">
@@ -682,7 +705,7 @@ export default function App() {
       </section>
 
       {/* Diferencial Section */}
-      <section id="diferencial" ref={diferencialRef} className="relative h-screen w-full bg-white overflow-hidden flex flex-col items-center justify-center">
+      <section id="diferencial" ref={diferencialRef} className={`relative ${isMobile ? 'h-auto py-24' : 'h-screen'} w-full bg-white overflow-hidden flex flex-col items-center justify-center`}>
         <div className="max-w-7xl mx-auto px-8 w-full relative z-10 flex flex-col items-center">
           <div ref={diferencialTitleRef} className="text-center mb-16">
             <h2 className="text-orange-500 font-bold tracking-widest uppercase text-sm mb-4">Nosso Diferencial</h2>
@@ -691,45 +714,82 @@ export default function App() {
             </h3>
           </div>
           
-          <div className="relative w-full max-w-5xl mx-auto flex flex-col md:flex-row justify-center items-center mt-10">
+          <div className="relative w-full max-w-5xl mx-auto flex justify-center items-center mt-10">
             {/* Background decorative element */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] md:w-[600px] md:h-[600px] bg-orange-500/10 rounded-full blur-3xl -z-10" />
             
-            <div ref={diferencialImgRef} className="w-full md:w-1/2 hidden md:flex justify-center items-center relative">
+            <div ref={diferencialImgRef} className="w-full flex flex-col justify-center items-center relative">
               <img 
                 src="/imagens/camera sem fundo.png" 
                 alt="Câmera de Segurança Diferencial" 
-                className="w-full max-w-[400px] md:max-w-[800px] max-h-[40vh] md:max-h-[50vh] h-auto object-contain scale-x-[-1] drop-shadow-2xl relative z-10"
+                className="hidden md:block w-full max-w-[400px] md:max-w-[800px] max-h-[40vh] md:max-h-[50vh] h-auto object-contain scale-x-[-1] drop-shadow-2xl relative z-10"
                 referrerPolicy="no-referrer"
               />
-            </div>
-            
-            {/* Features */}
-            <div className="w-full md:w-1/2 mt-8 md:mt-0 md:absolute md:inset-0 z-20 pointer-events-none">
-              <div ref={featuresRef} className="flex flex-col items-center justify-center gap-6 w-full h-full pointer-events-auto">
-                <div className="feature-item flex items-center gap-2 opacity-0">
-                  <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                  <span className="text-lg font-bold text-slate-800">Instalação no mesmo dia</span>
+              
+              {/* Features */}
+              <div className="w-full md:absolute md:inset-0 z-20 pointer-events-none">
+                <div className="flex flex-col items-center gap-6 md:hidden">
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                    <span className="text-lg font-bold text-slate-800">Instalação no mesmo dia</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                    <span className="text-lg font-bold text-slate-800">Técnicos certificados</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                    <span className="text-lg font-bold text-slate-800">Equipamentos com garantia</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                    <span className="text-lg font-bold text-slate-800">Suporte via WhatsApp</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                    <span className="text-lg font-bold text-slate-800">Monitoramento 24/7</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                    <span className="text-lg font-bold text-slate-800">Sem mensalidade obrigatória</span>
+                  </div>
                 </div>
-                <div className="feature-item flex items-center gap-2 opacity-0">
-                  <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                  <span className="text-lg font-bold text-slate-800">Técnicos certificados</span>
-                </div>
-                <div className="feature-item flex items-center gap-2 opacity-0">
-                  <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                  <span className="text-lg font-bold text-slate-800">Equipamentos com garantia</span>
-                </div>
-                <div className="feature-item flex items-center gap-2 opacity-0">
-                  <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                  <span className="text-lg font-bold text-slate-800">Suporte via WhatsApp</span>
-                </div>
-                <div className="feature-item flex items-center gap-2 opacity-0">
-                  <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                  <span className="text-lg font-bold text-slate-800">Monitoramento 24/7</span>
-                </div>
-                <div className="feature-item flex items-center gap-2 opacity-0">
-                  <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                  <span className="text-lg font-bold text-slate-800">Sem mensalidade obrigatória</span>
+                <div ref={featuresRef} className="hidden md:block">
+                  {/* 1. Top Left */}
+                  <div className={`feature-item absolute top-[15%] left-[2%] md:left-[10%] flex items-center gap-2 ${isMobile ? 'opacity-100' : 'opacity-0'}`}>
+                    <span className="text-xs md:text-sm font-bold text-slate-800 whitespace-nowrap">Instalação no mesmo dia</span>
+                    <div className="hidden md:block w-8 lg:w-16 h-[2px] bg-orange-500 relative"><div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-orange-500"></div></div>
+                  </div>
+                  
+                  {/* 2. Top Right */}
+                  <div className={`feature-item absolute top-[15%] right-[2%] md:right-[10%] flex items-center flex-row-reverse gap-2 ${isMobile ? 'opacity-100' : 'opacity-0'}`}>
+                    <span className="text-xs md:text-sm font-bold text-slate-800 whitespace-nowrap">Técnicos certificados</span>
+                    <div className="hidden md:block w-8 lg:w-16 h-[2px] bg-orange-500 relative"><div className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-orange-500"></div></div>
+                  </div>
+
+                  {/* 3. Middle Left */}
+                  <div className={`feature-item absolute top-[45%] left-[-2%] md:left-[2%] flex items-center gap-2 ${isMobile ? 'opacity-100' : 'opacity-0'}`}>
+                    <span className="text-xs md:text-sm font-bold text-slate-800 whitespace-nowrap">Equipamentos com garantia</span>
+                    <div className="hidden md:block w-12 lg:w-24 h-[2px] bg-orange-500 relative"><div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-orange-500"></div></div>
+                  </div>
+
+                  {/* 4. Middle Right */}
+                  <div className={`feature-item absolute top-[45%] right-[-2%] md:right-[2%] flex items-center flex-row-reverse gap-2 ${isMobile ? 'opacity-100' : 'opacity-0'}`}>
+                    <span className="text-xs md:text-sm font-bold text-slate-800 whitespace-nowrap">Suporte via WhatsApp</span>
+                    <div className="hidden md:block w-12 lg:w-24 h-[2px] bg-orange-500 relative"><div className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-orange-500"></div></div>
+                  </div>
+
+                  {/* 5. Bottom Left */}
+                  <div className={`feature-item absolute top-[75%] left-[2%] md:left-[10%] flex items-center gap-2 ${isMobile ? 'opacity-100' : 'opacity-0'}`}>
+                    <span className="text-xs md:text-sm font-bold text-slate-800 whitespace-nowrap">Monitoramento 24/7</span>
+                    <div className="hidden md:block w-8 lg:w-16 h-[2px] bg-orange-500 relative"><div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-orange-500"></div></div>
+                  </div>
+
+                  {/* 6. Bottom Right */}
+                  <div className={`feature-item absolute top-[75%] right-[2%] md:right-[10%] flex items-center flex-row-reverse gap-2 ${isMobile ? 'opacity-100' : 'opacity-0'}`}>
+                    <span className="text-xs md:text-sm font-bold text-slate-800 whitespace-nowrap">Sem mensalidade obrigatória</span>
+                    <div className="hidden md:block w-8 lg:w-16 h-[2px] bg-orange-500 relative"><div className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-orange-500"></div></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -887,8 +947,8 @@ export default function App() {
         <div className="max-w-5xl mx-auto relative">
           <div className="text-center mb-24">
             <motion.h2 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={isMobile ? false : { opacity: 0, y: 20 }}
+              whileInView={isMobile ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
               className="text-4xl md:text-6xl font-serif text-[#0f172a] font-bold mb-6"
@@ -896,8 +956,8 @@ export default function App() {
               Como Funciona
             </motion.h2>
             <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={isMobile ? false : { opacity: 0, y: 20 }}
+              whileInView={isMobile ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-slate-600 text-lg max-w-2xl mx-auto"
@@ -1013,7 +1073,7 @@ export default function App() {
         </div>
       </section>
 
-      <TestimonialsSection />
+      <TestimonialsSection isMobile={isMobile} />
       <FAQSection />
       <FinalCTASection />
       <Footer />
