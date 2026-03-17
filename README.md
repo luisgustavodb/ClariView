@@ -48,4 +48,4 @@ Este site foi construído como parte de um estudo sobre **experiência do usuár
 
 ---
 
-Desenvolvido com ❤️ por [Seu Nome/Link GitHub]
+Desenvolvido por Luis gustavo Del Bianco
