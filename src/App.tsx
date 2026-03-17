@@ -228,17 +228,13 @@ export default function App() {
       });
 
       // Initial state
-      gsap.set(diferencialTitleRef.current, { opacity: 0, y: 50 });
       gsap.set(diferencialImgRef.current, { opacity: 0, scale: 0.8, y: 100 });
       if (featuresRef.current) {
         gsap.set(featuresRef.current.children, { opacity: 0, scale: 0.8 });
       }
 
-      // Animate title
-      tl.to(diferencialTitleRef.current, { opacity: 1, y: 0, duration: 1 });
-      
       // Animate image (scale up and fade in)
-      tl.to(diferencialImgRef.current, { opacity: 1, scale: 1.1, y: 0, duration: 2 }, "-=0.5");
+      tl.to(diferencialImgRef.current, { opacity: 1, scale: 1.1, y: 0, duration: 2 });
 
       // Animate features
       if (featuresRef.current) {
