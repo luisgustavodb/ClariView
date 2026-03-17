@@ -183,7 +183,7 @@ export default function App() {
 
       // 2. Move container up and hide title
       tl.to(contentRef.current, {
-        y: "-65vh", // Move up by 65% of viewport height to push title off screen
+        y: "-25vh", // Adjusted to center the 6 cards properly
         duration: 2,
         ease: "power2.inOut"
       }, "moveUp");
@@ -598,19 +598,19 @@ export default function App() {
       <section 
         ref={servicesRef}
         id="servicos" 
-        className={`${isMobile ? 'h-auto py-24' : 'h-screen'} w-full bg-slate-50 px-8 flex flex-col items-center justify-start overflow-hidden`}
+        className={`${isMobile ? 'h-auto py-24' : 'h-screen'} w-full bg-slate-50 px-8 flex flex-col items-center justify-start overflow-hidden pt-12`}
       >
-        <div ref={contentRef} className={`max-w-7xl mx-auto w-full ${isMobile ? 'pt-0' : 'pt-4'}`}>
-          <div ref={titleRef} className="text-center mb-12">
-            <h2 className="text-orange-500 font-bold tracking-widest uppercase text-sm mb-4">Tecnologia de Ponta</h2>
-            <h3 className="text-4xl md:text-6xl font-serif text-[#0f172a] font-bold leading-tight">
+        <div ref={contentRef} className={`max-w-7xl mx-auto w-full ${isMobile ? 'pt-0' : 'pt-0'}`}>
+          <div ref={titleRef} className="text-center mb-8">
+            <h2 className="text-orange-500 font-bold tracking-widest uppercase text-sm mb-2">Tecnologia de Ponta</h2>
+            <h3 className="text-4xl md:text-5xl font-serif text-[#0f172a] font-bold leading-tight">
               Nossos Serviços
             </h3>
           </div>
 
           <div 
             ref={cardsRef}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
             {/* Service Card 1 */}
             <div className="custom-card">
@@ -696,7 +696,7 @@ export default function App() {
               <button onClick={(e) => handleNavClick(e, 'planos')}>Ver Planos</button>
             </div>
           </div>
-          <div className="text-center mt-16">
+          <div className="text-center mt-10">
             <button onClick={(e) => handleNavClick(e, 'contato')} className="py-4 px-[40px] rounded-full bg-[#fcd34d] border-none text-center cursor-pointer transition-all duration-400 hover:shadow-[7px_5px_56px_-14px_#f59e0b] active:scale-[0.97] active:shadow-[7px_5px_56px_-10px_#f59e0b] text-[#1a1a1a] font-bold uppercase tracking-wider text-xs">
               <strong>Solicitar Orçamento</strong>
             </button>
