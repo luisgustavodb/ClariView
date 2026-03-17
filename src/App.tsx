@@ -332,7 +332,7 @@ export default function App() {
       <header className="grid grid-cols-2 xl:grid-cols-3 items-center px-8 py-6 max-w-[90rem] mx-auto w-full relative z-[100]">
         <div className="flex justify-start">
           <img 
-            src="/imagens/logo texto.png" 
+            src="/imagens/logo-texto.png" 
             alt="ClariView Logo" 
             className="h-8 md:h-10 object-contain"
             referrerPolicy="no-referrer"
@@ -397,7 +397,7 @@ export default function App() {
               className="absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[95px] md:translate-y-[114px] w-0 h-0 flex items-center justify-center z-10 pointer-events-none"
             >
               <img 
-                src="/imagens/camera sem fundo.png" 
+                src="/imagens/camera-sem-fundo.png" 
                 alt="ClariView Advanced Camera" 
                 className="max-w-none w-[85vw] md:w-[600px] h-auto drop-shadow-2xl"
                 referrerPolicy="no-referrer"
@@ -431,7 +431,7 @@ export default function App() {
           className="absolute bottom-12 left-8 hidden lg:block"
         >
           <img 
-            src="/imagens/imagem pequena com fundo laranja.png" 
+            src="/imagens/imagem-pequena-com-fundo-laranja.png" 
             alt="ClariView Feature" 
             className="w-32 h-auto drop-shadow-xl"
             referrerPolicy="no-referrer"
@@ -720,7 +720,7 @@ export default function App() {
             
             <div ref={diferencialImgRef} className="w-full flex flex-col justify-center items-center relative">
               <img 
-                src="/imagens/camera sem fundo.png" 
+                src="/imagens/camera-sem-fundo.png" 
                 alt="Câmera de Segurança Diferencial" 
                 className="hidden md:block w-full max-w-[400px] md:max-w-[800px] max-h-[40vh] md:max-h-[50vh] h-auto object-contain scale-x-[-1] drop-shadow-2xl relative z-10"
                 referrerPolicy="no-referrer"
@@ -1086,7 +1086,7 @@ const FinalCTASection = () => {
   return (
     <section id="contato" className="py-20 bg-[#0f172a] text-white relative">
       <img
-        src="/imagens/imagem de fundo CTA.png"
+        src="/imagens/imagem-de-fundo-cta.png"
         alt="Background CTA"
         className="absolute inset-0 w-full h-full object-cover opacity-20"
         referrerPolicy="no-referrer"
@@ -1167,7 +1167,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-8 grid md:grid-cols-4 gap-12">
         {/* Logo + Slogan */}
         <div className="col-span-1">
-          <img src="/imagens/logo texto.png" alt="Logo" className="h-10 mb-4 brightness-0 invert" />
+          <img src="/imagens/logo-texto.png" alt="Logo" className="h-10 mb-4 brightness-0 invert" />
           <p className="text-sm text-slate-400">Sua segurança, nossa prioridade.</p>
         </div>
 
