@@ -1,20 +1,51 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# ClariView - Segurança Inteligente 🛡️
 
-# Run and deploy your AI Studio app
+Este é um projeto de **Portfólio e Experimentação** desenvolvido para explorar tecnologias modernas de front-end, animações complexas e design responsivo de alta performance.
 
-This contains everything you need to run your app locally.
+O ClariView é uma landing page conceitual para uma empresa de segurança tecnológica, focada em monitoramento inteligente e inteligência artificial.
 
-View your app in AI Studio: https://ai.studio/apps/23cc62a8-a3a8-45ae-a83b-360e74a1339f
+## 🚀 Tecnologias Utilizadas
 
-## Run Locally
+- **React 18** + **Vite**: Framework e build tool para uma experiência de desenvolvimento ultra-rápida.
+- **TypeScript**: Garantia de tipagem e código mais robusto.
+- **Tailwind CSS**: Estilização baseada em utilitários para um design moderno e responsivo.
+- **GSAP (GreenSock Animation Platform)**: Utilizado para animações de scroll avançadas, incluindo *pinning* de seções e efeitos de entrada dinâmicos.
+- **Framer Motion**: Para transições suaves de componentes e interações de UI.
+- **Lucide React**: Biblioteca de ícones consistentes e leves.
 
-**Prerequisites:**  Node.js
+## ✨ Funcionalidades e Diferenciais
 
+- **Animações de Scroll**: Seções que "travam" na tela enquanto o conteúdo interno é animado via scroll (ScrollTrigger).
+- **Design Futurista**: Estética baseada em tons escuros (Slate/Zinc) com acentos em laranja vibrante, seguindo tendências de UI modernas.
+- **Totalmente Responsivo**: Adaptado para dispositivos móveis, tablets e desktops.
+- **Componentes Customizados**: Cards com efeitos de profundidade (3D), botões estilizados e layouts de grid complexos.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## 🛠️ Como rodar o projeto localmente
+
+1. Clone o repositório:
+   ```bash
+   git clone https://github.com/seu-usuario/clariview.git
+   ```
+
+2. Entre na pasta do projeto:
+   ```bash
+   cd clariview
+   ```
+
+3. Instale as dependências:
+   ```bash
+   npm install
+   ```
+
+4. Inicie o servidor de desenvolvimento:
+   ```bash
+   npm run dev
+   ```
+
+## 📝 Sobre este projeto
+
+Este site foi construído como parte de um estudo sobre **experiência do usuário (UX)** e **interatividade**. O objetivo principal foi testar os limites das animações baseadas em scroll e como elas podem ser usadas para contar uma história visual sem comprometer a performance.
+
+---
+
+Desenvolvido com ❤️ por [Seu Nome/Link GitHub]
